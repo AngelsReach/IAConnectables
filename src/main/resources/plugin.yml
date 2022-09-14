@@ -1,6 +1,6 @@
 name: IAConnectables
 version: '${project.version}'
-main: com.vergilprime.iaconnectables.IAConnectables
+main: com.vergilprime.iaconnectables.IACPlugin
 api-version: 1.19
 prefix: Connectables
 depend: [ ItemsAdder ]

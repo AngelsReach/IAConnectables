@@ -24,12 +24,12 @@ public class ConnectableListener implements Listener {
 		}
 		String itemName = event.getFurniture().getId();
 		ConfigurationSection config = event.getFurniture().getConfig().getConfigurationSection("items." + itemName);
-		if (config.isConfigurationSection("behaviours.connectable")) {
-			Bukkit.getLogger().info("behaviours.connectable is a section");
+		if (config.isConfigurationSection("behaviours.furniture.couch")) {
+			Bukkit.getLogger().info("behaviours.furniture.couch is a section");
 			ConnectableFurniture connectable = new ConnectableFurniture(event.getFurniture());
 			connectable.Connect(1);
 		} else {
-			Bukkit.getLogger().info("behaviours.connectable is not a section");
+			Bukkit.getLogger().info("behaviours.furniture.couch is not a section");
 		}
 	}
 
@@ -40,7 +40,7 @@ public class ConnectableListener implements Listener {
 			return;
 		}
 		ConfigurationSection config = event.getFurniture().getConfig();
-		if (config.isConfigurationSection("behaviours.connectable")) {
+		if (config.isConfigurationSection("behaviours.furniture.couch")) {
 			ConnectableFurniture connectable = new ConnectableFurniture(event.getFurniture());
 			connectable.Disconnect();
 		}

@@ -6,7 +6,7 @@
 
     <groupId>com.vergilprime</groupId>
     <artifactId>IAConnectables</artifactId>
-    <version>0.1</version>
+    <version>0.1-ex</version>
     <packaging>jar</packaging>
 
     <name>IAConnectables</name>

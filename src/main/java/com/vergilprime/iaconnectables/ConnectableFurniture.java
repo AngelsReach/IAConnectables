@@ -4,60 +4,68 @@ import dev.lone.itemsadder.api.CustomFurniture;
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Rotation;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.HashMap;
 import java.util.List;
 
 public class ConnectableFurniture {
-	private final CustomFurniture furniture;
-	private Integer middle;
-	private Integer cornerInner;
-	private Integer cornerOuter;
-	private Integer endLeft;
-	private Integer endRight;
+	private CustomFurniture furniture;
+	private String single;
+	private String middle;
+	private String cornerInner;
+	private String cornerOuter;
+	private String endLeft;
+	private String endRight;
 
-	public ConnectableFurniture(CustomFurniture furniture) {
-		this.furniture = furniture;
-		String itemName = furniture.getId();
-		ConfigurationSection config = furniture.getConfig().getConfigurationSection("items." + itemName);
+	public ConnectableFurniture(CustomFurniture _furniture) {
+		setFurniture(_furniture);
+		single = furniture.getId();
+		ConfigurationSection config = furniture.getConfig().getConfigurationSection("items." + single);
 		if (!config.isConfigurationSection("behaviours")) return;
-
-		if (!config.isConfigurationSection("behaviours.connectable")) return;
-
-		Bukkit.getLogger().info("ConnectableFurniture: " + furniture.getNamespacedID() + " grabbing other model IDs");
-
-		middle = config.isInt("behaviours.connectable.middle") ? config.getInt("behaviours.connectable.middle") : null;
-		cornerInner = config.isInt("behaviours.connectable.corner_inner") ? config.getInt("behaviours.connectable.corner_inner") : null;
-		cornerOuter = config.isInt("behaviours.connectable.corner_outer") ? config.getInt("behaviours.connectable.corner_outer") : null;
-		endLeft = config.isInt("behaviours.connectable.end_left") ? config.getInt("behaviours.connectable.end_left") : null;
-		endRight = config.isInt("behaviours.connectable.end_right") ? config.getInt("behaviours.connectable.end_right") : null;
-
+		if (!config.isConfigurationSection("behaviours.furniture.couch")) return;
+		middle = config.isString("behaviours.furniture.couch.middle") ? config.getString("behaviours.furniture.couch.middle") : null;
+		cornerInner = config.isString("behaviours.furniture.couch.corner_inner") ? config.getString("behaviours.furniture.couch.corner_inner") : null;
+		cornerOuter = config.isString("behaviours.furniture.couch.corner_outer") ? config.getString("behaviours.furniture.couch.corner_outer") : null;
+		endLeft = config.isString("behaviours.furniture.couch.end_left") ? config.getString("behaviours.furniture.couch.end_left") : null;
+		endRight = config.isString("behaviours.furniture.couch.end_right") ? config.getString("behaviours.furniture.couch.end_right") : null;
 	}
 
-	public int getMiddle() {
+	public CustomFurniture getFurniture() {
+		return furniture;
+	}
+
+	public void setFurniture(CustomFurniture furniture) {
+		this.furniture = furniture;
+	}
+
+	public String getSingle() {
+		return single;
+	}
+
+	public String getMiddle() {
 		return middle;
 	}
 
-	public int getCornerInner() {
+	public String getCornerInner() {
 		return cornerInner;
 	}
 
-	public int getCornerOuter() {
+	public String getCornerOuter() {
 		return cornerOuter;
 	}
 
-	public int getEndLeft() {
+	public String getEndLeft() {
 		return endLeft;
 	}
 
-	public int getEndRight() {
+	public String getEndRight() {
 		return endRight;
 	}
 
@@ -222,26 +230,29 @@ public class ConnectableFurniture {
 		}
 
 		// Get the CustomModelData of the default or "single" item
-		int customModelData = displayItem.getItemMeta().getCustomModelData();
+		String id = this.furniture.getNamespacedID();
 
 		// If the type is anything other than signal then we can look to the config for the right customModelData
-		customModelData = switch (type) {
+		String newId = furniture.getNamespace() + "." + switch (type) {
+			case SINGLE -> getSingle();
 			case MIDDLE -> getMiddle();
 			case CORNER_IN -> getCornerInner();
 			case CORNER_OUT -> getCornerOuter();
 			case END_LEFT -> getEndLeft();
 			case END_RIGHT -> getEndRight();
-			default -> customModelData;
+			default -> id;
 		};
 
 		//System.out.println("Connectable is of type " + type.toString() + ", new model: " + customModelData + ".");
 
 		// Set the CustomModelData of the item in the frame.
-		if (customModelData != displayItem.getItemMeta().getCustomModelData()) {
-			ItemMeta meta = displayItem.getItemMeta();
-			meta.setCustomModelData(customModelData);
-			displayItem.setItemMeta(meta);
-			frame.setItem(displayItem);
+		if (newId != null && newId != id) {
+			Rotation rotation = frame.getRotation();
+			this.furniture.remove(false);
+			Block location = frame.getLocation().getBlock();
+			Bukkit.getLogger().info("Spawning " + newId + " at " + location.getX() + ", " + location.getY() + ", " + location.getZ());
+			setFurniture(CustomFurniture.spawn(newId, location));
+			((ItemFrame) furniture.getArmorstand()).setRotation(rotation);
 		}
 	}
 
@@ -293,10 +304,6 @@ public class ConnectableFurniture {
 		});
 
 		return itemFrames;
-	}
-
-	public CustomFurniture getFurniture() {
-		return furniture;
 	}
 }
 	

@@ -26,10 +26,13 @@ public class ConnectableFurniture {
 
 	public ConnectableFurniture(CustomFurniture _furniture) {
 		setFurniture(_furniture);
-		single = furniture.getId();
-		ConfigurationSection config = furniture.getConfig().getConfigurationSection("items." + single);
+		ConfigurationSection config = furniture.getConfig().getConfigurationSection("items." + furniture.getId());
 		if (!config.isConfigurationSection("behaviours")) return;
 		if (!config.isConfigurationSection("behaviours.furniture.couch")) return;
+		if(config.isString("behaviors.furniture.couch.parent")){
+			config = furniture.getConfig().getConfigurationSection("items." + config.getString("behaviors.furniture.couch.parent"));
+		}
+		single = furniture.getId();
 		middle = config.isString("behaviours.furniture.couch.middle") ? config.getString("behaviours.furniture.couch.middle") : null;
 		cornerInner = config.isString("behaviours.furniture.couch.corner_inner") ? config.getString("behaviours.furniture.couch.corner_inner") : null;
 		cornerOuter = config.isString("behaviours.furniture.couch.corner_outer") ? config.getString("behaviours.furniture.couch.corner_outer") : null;
@@ -233,7 +236,7 @@ public class ConnectableFurniture {
 		String id = this.furniture.getNamespacedID();
 
 		// If the type is anything other than signal then we can look to the config for the right customModelData
-		String newId = furniture.getNamespace() + "." + switch (type) {
+		String secondSpace = switch (type) {
 			case SINGLE -> getSingle();
 			case MIDDLE -> getMiddle();
 			case CORNER_IN -> getCornerInner();
@@ -243,16 +246,25 @@ public class ConnectableFurniture {
 			default -> id;
 		};
 
+		Bukkit.getLogger().info("Type was " + type.toString() + " and custom model set to " + secondSpace);
+		String newId = furniture.getNamespace() + ":" + secondSpace;
+
 		//System.out.println("Connectable is of type " + type.toString() + ", new model: " + customModelData + ".");
 
 		// Set the CustomModelData of the item in the frame.
-		if (newId != null && newId != id) {
+		if (secondSpace != null && newId != id) {
 			Rotation rotation = frame.getRotation();
 			this.furniture.remove(false);
 			Block location = frame.getLocation().getBlock();
 			Bukkit.getLogger().info("Spawning " + newId + " at " + location.getX() + ", " + location.getY() + ", " + location.getZ());
-			setFurniture(CustomFurniture.spawn(newId, location));
-			((ItemFrame) furniture.getArmorstand()).setRotation(rotation);
+			CustomFurniture newFurniture = CustomFurniture.spawn(newId, location);
+			if(newFurniture == null){
+				throw new NullPointerException("Failed to spawn " + newId + " at " + location.getX() + ", " + location.getY() + ", " + location.getZ());
+				//Bukkit.getLogger().warning("Failed to spawn " + newId + " at " + location.getX() + ", " + location.getY() + ", " + location.getZ());
+			}else{
+				setFurniture(newFurniture);
+				((ItemFrame) furniture.getArmorstand()).setRotation(rotation);
+			}
 		}
 	}
 

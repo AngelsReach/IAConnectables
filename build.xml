@@ -19,7 +19,7 @@
          to compile your plugin to multiple servers. -->
 
     <target name="Build">
-        <jar jarfile="D:/Repos/ItemsAdderTestServer/plugins/${ant.project.name}.jar" basedir="./target/classes/"
+        <jar jarfile="C:/Repos/ItemsAdderTestServer/plugins/${ant.project.name}.jar" basedir="./target/classes/"
              includes="**/*">
 
             <!-- IF you have Foundation on your disk, remove the <zipgroupfileset> line and uncomment the <fileset> one. Repeat for the other <jar> goal below.
